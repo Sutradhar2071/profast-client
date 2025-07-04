@@ -1,24 +1,45 @@
 import React from "react";
 import useAuth from "../../../hooks/useAuth";
+import { useLocation, useNavigate } from "react-router";
+import useAxios from "../../../hooks/useAxios";
 
 const SocialLogin = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = location.state?.from || "/";
+  const axiosInstance = useAxios();
+  const { signInWithGoogle } = useAuth();
+  const handleGoogleButton = () => {
+    signInWithGoogle()
+      .then(async (result) => {
+        const user = result.user;
+        console.log(result.user);
 
-    
-    const {signInWithGoogle} = useAuth();
-    const handleGoogleButton = () =>{
-        signInWithGoogle()
-        .then(result=>{
-            console.log(result.user)
-        })
-        .catch(error =>{
-            console.error(error)
-        })
-    }
+        // profile update by database
+
+        const userInfo = {
+          email: user.email,
+          role: "user", // default role
+          created_at: new Date().toISOString(),
+          last_log_in: new Date().toISOString(),
+        };
+
+        const userRes = await axiosInstance.post("/users", userInfo);
+        console.log("profile update ", userRes.data);
+        navigate(from);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   return (
     <div>
-        <div>Or</div>
-      <button onClick={handleGoogleButton} className="btn bg-white text-black border-[#e5e5e5]">
+      <div>Or</div>
+      <button
+        onClick={handleGoogleButton}
+        className="btn bg-white text-black border-[#e5e5e5]"
+      >
         <svg
           aria-label="Google logo"
           width="16"

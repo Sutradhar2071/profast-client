@@ -1,8 +1,18 @@
 import React from "react";
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import ProFastLogo from "../ProFastLogo/ProFastLogo";
+import useAuth from "../../../hooks/useAuth";
 
 const Navbar = () => {
+  const { user, logOut } = useAuth();
+
+  const handleLogout = () => {
+    logOut()
+      .then(() => {
+        console.log("Logged out");
+      })
+      .catch((err) => console.log(err));
+  };
   const navItems = (
     <>
       <li>
@@ -12,7 +22,17 @@ const Navbar = () => {
         <NavLink to="/coverage">Coverage</NavLink>
       </li>
       <li>
-        <NavLink to="/about">About Us</NavLink>
+        <NavLink to="/addParcel">Add Parcel</NavLink>
+      </li>
+      {user && (
+        <>
+          <li>
+            <NavLink to="/dashboard">Dashboard</NavLink>
+          </li>
+        </>
+      )}
+      <li>
+        <NavLink to="/rider">Be a Rider</NavLink>
       </li>
     </>
   );
@@ -44,13 +64,28 @@ const Navbar = () => {
             {navItems}
           </ul>
         </div>
-        <a className="btn btn-ghost text-xl"><ProFastLogo></ProFastLogo></a>
+        <span className="btn btn-ghost text-xl">
+          <ProFastLogo></ProFastLogo>
+        </span>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">{navItems}</ul>
       </div>
       <div className="navbar-end">
-        <a className="btn">Button</a>
+        {user ? (
+          <button onClick={handleLogout} className="btn btn-primary text-black">
+            Logout
+          </button>
+        ) : (
+          <>
+            <Link to="/login" className="btn btn-primary text-black">
+              Login
+            </Link>
+            <Link to="/register" className="btn btn-primary text-black">
+              Register
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
